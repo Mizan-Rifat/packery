@@ -10,15 +10,19 @@ import img7 from './assets/img/7.png';
 import img8 from './assets/img/8.png';
 import img9 from './assets/img/9.png';
 import img10 from './assets/img/10.png';
+import classNames from 'classnames';
+import { CSSTransition } from 'react-transition-group';
 
-const ImageGrid = ({ data }) => {
+const ImageGrid = ({ data, className, show }) => {
   return (
-    <div className={`col-span-${data.col} row-span-${data.row} relative `}>
-      <img src={data.img} alt="" className="w-full h-full object-cover" />
-      <span className="absolute top-2 left-2 p-1 bg-slate-200">
-        {data.img.match(/\d+(?=\.[^.]*$)/)}
-      </span>
-    </div>
+    <CSSTransition in={show} timeout={500} classNames="fade" unmountOnExit={true}>
+      <div className={`col-span-${data.col} row-span-${data.row} relative ${className}`}>
+        <img src={data.img} alt="" className="w-full h-full object-cover" />
+        <span className="absolute top-2 left-2 p-1 bg-slate-200">
+          {data.img.match(/\d+(?=\.[^.]*$)/)}
+        </span>
+      </div>
+    </CSSTransition>
   );
 };
 
@@ -36,21 +40,22 @@ function getTotalRows(gridData) {
 }
 
 const data = [
-  { img: img1, col: 1, row: 2, category: [4] },
-  { img: img2, col: 1, row: 2, category: [3] },
-  { img: img3, col: 1, row: 1, category: [2] },
-  { img: img5, col: 1, row: 2, category: [3] },
-  { img: img4, col: 1, row: 1, category: [2, 3] },
-  { img: img6, col: 1, row: 2, category: [2] },
-  { img: img7, col: 1, row: 1, category: [2] },
-  { img: img9, col: 2, row: 1, category: [2] },
-  { img: img8, col: 1, row: 1, category: [4] },
-  { img: img10, col: 2, row: 1, category: [2] }
+  { img: img1, col: 1, row: 2, category: [1, 4] },
+  { img: img2, col: 1, row: 2, category: [1, 3] },
+  { img: img3, col: 1, row: 1, category: [1, 2] },
+  { img: img5, col: 1, row: 2, category: [1, 3] },
+  { img: img4, col: 1, row: 1, category: [1, 2, 3] },
+  { img: img6, col: 1, row: 2, category: [1, 2] },
+  { img: img7, col: 1, row: 1, category: [1, 2] },
+  { img: img9, col: 2, row: 1, category: [1, 2] },
+  { img: img8, col: 1, row: 1, category: [1, 4] },
+  { img: img10, col: 2, row: 1, category: [1, 2] }
 ];
 
 const App = () => {
   const [images, setImages] = useState(data);
   const containerRef = useRef(null);
+  const [selectedCategory, setSelectedCategory] = useState(1);
 
   const calcRows = () => {
     if (!containerRef.current) return;
@@ -61,8 +66,11 @@ const App = () => {
   };
 
   const handleClick = category => {
-    setImages(data.filter(image => category === 1 || image.category.includes(category)));
+    setSelectedCategory(category);
+    // setImages(data.filter(image => category === 1 || image.category.includes(category)));
   };
+
+  console.log({ images });
 
   return (
     <>
@@ -90,7 +98,14 @@ const App = () => {
       </div>
       <div className="grid grid-cols-4 gap-4 max-w-3xl  transition-all" ref={containerRef}>
         {images.map((item, index) => (
-          <ImageGrid data={item} key={item.img} />
+          <ImageGrid
+            data={item}
+            key={item.img}
+            // className={classNames({
+            //   hidden: !item.category.includes(selectedCategory)
+            // })}
+            show={item.category.includes(selectedCategory)}
+          />
         ))}
       </div>
       <div className="col-span-1 col-span-2 col-span-3 col-span-4 row-span-1 row-span-2 row-span-3 row-span-4" />
